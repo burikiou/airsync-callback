@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline';">
+<meta name="referrer" content="no-referrer">
+<title>Air Sync 認証の中継</title>
+<style>body{font-family:sans-serif;max-width:480px;margin:80px auto;padding:0 20px;text-align:center}a{display:inline-block;margin-top:16px;padding:10px 24px;background:#7c3aed;color:#fff;border-radius:6px;text-decoration:none}.err{color:#c0392b}</style>
+</head>
+<body>
+<h1>Air Sync</h1>
+<div id="c"></div>
+<script>
+(function () {
+  // Google から受け取った code と state を、そのまま Obsidian に渡すだけ。どこにも送らない
+  var p = new URLSearchParams(location.search);
+  var code = p.get("code"), state = p.get("state"), err = p.get("error");
+  var c = document.getElementById("c");
+  function fail(m) { c.textContent = m; c.className = "err"; }
+  if (err) return fail("認証に失敗しました (" + err.replace(/[^A-Za-z0-9._~-]/g, "").slice(0, 64) + ")");
+  if (!code || !state) return fail("パラメータがありません。Obsidian からやり直してください。");
+  var url = "obsidian://air-sync-auth?code=" + encodeURIComponent(code) + "&state=" + encodeURIComponent(state);
+  var a = document.createElement("a");
+  a.href = url; a.textContent = "Obsidian を開く";
+  c.appendChild(document.createTextNode("Obsidian に戻ります… 開かなければ下のボタンを押してください。"));
+  c.appendChild(document.createElement("br"));
+  c.appendChild(a);
+  location.href = url;
+})();
+</script>
+</body>
+</html>
